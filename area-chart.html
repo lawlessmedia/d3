@@ -173,7 +173,7 @@ svg.append("text")
   .attr("x", width - 20)
   .attr("y", height - 20)
   .attr("class", "label")
-  .text(function(symbol) { return 'Tides'; });
+  .text(function(symbol) { return 'Revenue'; });
 
 svg.append("g")
     .attr("class", "x axis")
@@ -208,18 +208,23 @@ var focus = svg.append("g")
 
     function mousemove() {                                 // **********
         var x0 = x.invert(d3.mouse(this)[0]),              // **********
+            xpos = console.log(d3.mouse(this)[0]);
+            ypos = console.log(d3.mouse(this)[1]);
+            //xvalue = console.log(x.d3.mouse(this)[0]);
+            xvalue = console.log(x.invert(d3.mouse(this)[0]));
             i = bisectDate(data, x0, 1),
-            l = console.log(i),                  // **********
+            l = console.log('i: ' + i),                  // **********
             d0 = data[i - 1],                              // **********
             d1 = data[i];                                  // **********
             //d = x0 - d0.x > d1.x - x0 ? d1 : d0;
 
             console.log(d0);            // **********
+            console.log('d1: ' + d1);
 
-        focus.select("circle.y")                           // **********
-            .attr("transform",                             // **********
-                  "translate(" + x(d.x) + "," +         // **********
-                                 y(d.y) + ")");            // **********
+        // focus.select("circle.y")                           // **********
+        //     .attr("transform",                             // **********
+        //           "translate(" + x(d.x) + "," +         // **********
+        //                          y(d.y) + ")");            // **********
     }  
 
 //svg.call(tip);
