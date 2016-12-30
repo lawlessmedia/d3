@@ -184,7 +184,17 @@ svg.append("g")
     .attr("class", "y axis")
     .call(yAxis);
 
+// Define the line
+var valueline = d3.svg.line()
+    .x(function(d) { return x(d.x); })
+    .y(function(d) { return y(d.y); });
+
 var lineSvg = svg.append("g");
+
+// Add the valueline path.
+    lineSvg.append("path")
+        .attr("class", "line")
+        .attr("d", valueline(data));
 
 var focus = svg.append("g")
     .style("display", "none");
@@ -206,13 +216,20 @@ var focus = svg.append("g")
         .on("mouseout", function() { focus.style("display", "none"); })
         .on("mousemove", mousemove);                       // **********
 
+	data.forEach(function(d) {
+        d.x = parseDate.parse(d.x);
+        //console.log('d.x: ' + d.x);
+        d.y = d.y;
+        //console.log('d.y: ' + d.y);
+    });
+    
     function mousemove() {                                 // **********
         var x0 = x.invert(d3.mouse(this)[0]),              // **********
             xpos = console.log(d3.mouse(this)[0]);
             ypos = console.log(d3.mouse(this)[1]);
-            //xvalue = console.log(x.d3.mouse(this)[0]);
+            yvalue = console.log(y.invert(d3.mouse(this)[0]));
             xvalue = console.log(x.invert(d3.mouse(this)[0]));
-            i = bisectDate(data, x0, 1),
+            i = bisectDate(data, x0.parse, 1),
             l = console.log('i: ' + i),                  // **********
             d0 = data[i - 1],                              // **********
             d1 = data[i];                                  // **********
@@ -221,10 +238,10 @@ var focus = svg.append("g")
             console.log(d0);            // **********
             console.log('d1: ' + d1);
 
-        // focus.select("circle.y")                           // **********
-        //     .attr("transform",                             // **********
-        //           "translate(" + x(d.x) + "," +         // **********
-        //                          y(d.y) + ")");            // **********
+        focus.select("circle.y")                           // **********
+            .attr("transform",                             // **********
+                  "translate(" + x(d.x) + "," +         // **********
+                                 y(d.y) + ")");            // **********
     }  
 
 //svg.call(tip);
