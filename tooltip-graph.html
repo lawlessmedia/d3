@@ -14,12 +14,6 @@ body {
   stroke: #000;
   shape-rendering: crispEdges;
 }
-
-.line {
-  fill: steelblue;
-  stroke: #666;
-  stroke-width: 1.5px;
-}
 .area {
   fill: steelblue;
   /*stroke: #000;
@@ -50,7 +44,7 @@ body {
 // Set the dimensions of the canvas / graph
 var margin = {top: 0, right: 20, bottom: 50, left: 50},
     width = document.body.clientWidth - (margin.left + margin.right),
-    height = 270 - margin.top - margin.bottom;
+    height = 350 - margin.top - margin.bottom;
 
 // Parse the date / time
 //var parseDate = d3.time.format("%d-%b-%y").parse;
@@ -60,9 +54,6 @@ var parseDate = d3.time.format("%Y-%m-%d %H:%M").parse;
 // Set the ranges
 var x = d3.time.scale().range([0, width]);
 var y = d3.scale.linear().range([height, 0]);
-//var y = d3.scale.linear()
-//    .domain([-5, d3.max(data, function(d) { return d.y; })])
-//    .range([height, 0]);
 
 // Define the axes
 var xAxis = d3.svg.axis().scale(x)
@@ -70,6 +61,12 @@ var xAxis = d3.svg.axis().scale(x)
 
 var yAxis = d3.svg.axis().scale(y)
     .orient("left");
+
+var area = d3.svg.area()
+    .interpolate("cardinal")
+    .x(function(d) { return x(d.date); })
+    .y0(height)
+    .y1(function(d) { return y(d.close); });
 
 // Define the line
 var valueline = d3.svg.line()
@@ -101,13 +98,20 @@ d3.json("tidedata.json", function(error, data) {
 
     // Scale the range of the data
     x.domain(d3.extent(data, function(d) { return d.date; }));
-    y.domain([0, d3.max(data, function(d) { return d.close; })]);
+    y.domain([-5, d3.max(data, function(d) { return d.close; })]);
 
     // Add the valueline path.
     lineSvg.append("path")
-        .attr("class", "line")
-        .attr("d", valueline(data));
-
+        .data([data])
+        .attr("class", "area")
+        .attr("d", area);
+        
+	svg.append("text")
+		.attr("x", width - 20)
+		.attr("y", height - 20)
+		.attr("class", "label")
+		.text(function(symbol) { return 'Tides'; });
+  
     // Add the X Axis
     svg.append("g")
         .attr("class", "x axis")
@@ -122,8 +126,8 @@ d3.json("tidedata.json", function(error, data) {
     // append the circle at the intersection 
     focus.append("circle")
         .attr("class", "y")
-        .style("fill", "none")
-        .style("stroke", "blue")
+        .style("fill", "white")
+        .style("stroke", "steelblue")
         .attr("r", 4);
     
     // append the rectangle to capture mouse
