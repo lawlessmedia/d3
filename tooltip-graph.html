@@ -35,6 +35,19 @@ body {
   position: absolute;
   bottom: 0;
 }
+div.tooltip { 
+    position: absolute;     
+    text-align: center;     
+    width: 10rem;          
+    height: 4rem;         
+    padding: 15px;       
+    font: 2rem sans-serif;
+    line-height: 2.25rem;
+    background: lightsteelblue; 
+    border: 0px;    
+    border-radius: 2px;     
+    pointer-events: none;     
+}
 
 </style>
 <body>
@@ -75,6 +88,11 @@ var area = d3.svg.area()
 var valueline = d3.svg.line()
     .x(function(d) { return x(d.date); })
     .y(function(d) { return y(d.close); });
+
+// Define the div for the tooltip
+var div = d3.select("body").append("div") 
+    .attr("class", "tooltip")       
+    .style("opacity", 0);
     
 // Adds the svg canvas
 var svg = d3.select("#tidechart")
@@ -131,7 +149,7 @@ d3.json("tidedata.json", function(error, data) {
         .attr("class", "y")
         .style("fill", "white")
         .style("stroke", "steelblue")
-        .attr("r", 4);
+        .attr("r", 10);
     
     // append the rectangle to capture mouse
     svg.append("rect")
@@ -144,22 +162,36 @@ d3.json("tidedata.json", function(error, data) {
         .on("mousemove", mousemove);
 
     function mousemove() {
-		var x0 = x.invert(d3.mouse(this)[0]),
-			//xpos = console.log('x: ' + d3.mouse(this)[0]);
-            //ypos = console.log('y: ' + d3.mouse(this)[1]);
+		    var x0 = x.invert(d3.mouse(this)[0]);
+			  //xpos = console.log('x: ' + d3.mouse(this)[0]);
+        //ypos = console.log('y: ' + d3.mouse(this)[1]);
             
-            xvalue = console.log(x.invert(d3.mouse(this)[0]));
+        var xvalue = x.invert(d3.mouse(this)[0]);
+        console.log(xvalue);
+
+        var parseTime = d3.time.format("%_I:%M%p");
+        var xvalueTime = parseTime(new Date(xvalue));
+
 		    i = bisectDate(data, x0, 1),
 		    d0 = data[i - 1],
 		    d1 = data[i],
 		    d = x0 - d0.date > d1.date - x0 ? d1 : d0;
 		    
-		    yvalue = console.log(d.close);
+		    var yvalue = d.close;
+        console.log(yvalue);
 
-		focus.select("circle.y")
+        // tooltip creation
+        div.transition()    
+            .duration(200)    
+            .style("opacity", .9);    
+        div .html(xvalueTime + "<br/>"  + yvalue)  
+            .style("left", (d3.event.pageX) + "px")   
+            .style("bottom", (8) + "%");
+
+		  focus.select("circle.y")
 		    .attr("transform",
-		          "translate(" + x(d.date) + "," +
-		                         y(d.close) + ")");
+		      "translate(" + x(d.date) + "," +
+		      y(d.close) + ")");
 	}
 
 });
