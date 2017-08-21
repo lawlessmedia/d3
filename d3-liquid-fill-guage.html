@@ -59,18 +59,21 @@
           bottom: 0;
         }
         div.tooltip { 
-            background: rgba(4, 86, 129, 0.7); 
-            border-radius: 2px;     
-            border: 0px;
-            color: rgb(164, 219, 248);  
-            font: 2rem sans-serif;
-            height: 4rem;         
-            line-height: 2.25rem;
-            padding: 15px;       
-            pointer-events: none;     
-            position: absolute;     
-            text-align: center;     
-            width: 10rem;          
+          background: rgba(4, 86, 129, 0.7); 
+          border-radius: 2px;     
+          border: 0px;
+          color: rgb(164, 219, 248);  
+          font-size: 2rem;
+          height: 4rem;         
+          line-height: 2.25rem;
+          padding: 15px;       
+          pointer-events: none;     
+          position: absolute;     
+          text-align: center;     
+          width: 10rem;          
+        }
+        div.tooltip .tooltip-feet, div.tooltip .tooltip-time {
+          font-size: 1rem;
         }
         /* end tide graph styles */
     </style>
@@ -82,37 +85,36 @@
 	</div>
 	<div id="tidechart"></div>
 <script>
-	var currentDay = moment().format('dddd Do');
-	var dayDiv = document.getElementById("currentday");
-	dayDiv.innerHTML = currentDay;
-    
-    // begin liquidFillGauge code
-    var config0 = liquidFillGaugeDefaultSettings();
-    config0.circleThickness = 0.03;
-    config0.maxValue = 10;
-    config0.textVertPosition = 0.6;
-    config0.waveCount = 1.4;
-    config0.waveAnimateTime = 4000;
-    // loadLiquidFillGuage(elementId, waveHeight, wavePeriod, waterTemp, config)
-    var gauge1 = loadLiquidFillGauge("fillgauge1", 6.2, 10, 64.8, config0);
+var currentDay = moment().format('dddd Do');
+var dayDiv = document.getElementById("currentday");
+dayDiv.innerHTML = currentDay;
+  
+  // begin liquidFillGauge code
+  var config0 = liquidFillGaugeDefaultSettings();
+  config0.circleThickness = 0.03;
+  config0.maxValue = 10;
+  config0.textVertPosition = 0.6;
+  config0.waveCount = 1.4;
+  config0.waveAnimateTime = 4000;
+  // loadLiquidFillGuage(elementId, waveHeight, wavePeriod, waterTemp, config)
+  var gauge1 = loadLiquidFillGauge("fillgauge1", 6.2, 10, 64.8, config0);
 
-	// can remove this, but it be nice to use it for variations onClick
-    function NewValue(){
-        if(Math.random() > .5){
-            return Math.round(Math.random()*100);
-        } else {
-            return (Math.random()*100).toFixed(1);
-        }
-    }
-</script>
-<!-- tide chart script -->
-<script>
+// can remove this, but it be nice to use it for variations onClick
+  function NewValue(){
+      if(Math.random() > .5){
+          return Math.round(Math.random()*10);
+      } else {
+          return (Math.random()*10).toFixed(1);
+      }
+  }
+
+//tide chart script
 
 //var margin = {top: 0, right: 20, bottom: 50, left: 50},
-var margin = {top: 0, right: 0, bottom: 0, left: 0},
+var margin = {top: 30, right: 0, bottom: 0, left: 0},
     width = document.body.clientWidth,
     //width = 600,
-    height = 120;
+    height = 150;
 
 // Parse the date / time
 //var parseDate = d3.time.format("%d-%b-%y").parse;
@@ -143,7 +145,8 @@ var valueline = d3.svg.line()
 
 // Define the div for the tooltip
 var div = d3.select("body").append("div") 
-    .attr("class", "tooltip")       
+    .attr("class", "tooltip")
+    .attr("id", "tooltip")      
     .style("opacity", 0);
     
 // Adds the svg canvas
@@ -164,37 +167,37 @@ var focus = svg.append("g")
 d3.json("tidedata.json", function(error, data) {
   if (error) throw error;
   
-    data.forEach(function(d) {
-        d.date = parseDate(d.date);
-        d.close = +d.close;
-    });
+  data.forEach(function(d) {
+      d.date = parseDate(d.date);
+      d.close = +d.close;
+  });
 
-    // Scale the range of the data
-    x.domain(d3.extent(data, function(d) { return d.date; }));
-    y.domain([-5, d3.max(data, function(d) { return d.close; })]);
+  // Scale the range of the data
+  x.domain(d3.extent(data, function(d) { return d.date; }));
+  y.domain([-5, d3.max(data, function(d) { return d.close; })]);
 
-    // Add the valueline path.
-    lineSvg.append("path")
-        .data([data])
-        .attr("class", "area")
-        .attr("d", area);
+  // Add the valueline path.
+  lineSvg.append("path")
+      .data([data])
+      .attr("class", "area")
+      .attr("d", area);
         
   svg.append("text")
     .attr("x", width - 20)
     .attr("y", height - 20)
     .attr("class", "label")
-    .text(function(symbol) { return 'Current Tide'; });
+    .text(function(symbol) { return 'Today\'s Tides'; });
   
     // Add the X Axis
-    svg.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + height + ")")
-        .call(xAxis);
+    // svg.append("g")
+    //     .attr("class", "x axis")
+    //     .attr("transform", "translate(0," + height + ")")
+    //     .call(xAxis);
 
     // Add the Y Axis
-    svg.append("g")
-        .attr("class", "y axis")
-        .call(yAxis);
+    // svg.append("g")
+    //     .attr("class", "y axis")
+    //     .call(yAxis);
 
     // append the circle at the intersection 
     focus.append("circle")
@@ -209,9 +212,20 @@ d3.json("tidedata.json", function(error, data) {
         .attr("height", height)
         .style("fill", "none")
         .style("pointer-events", "all")
-        .on("mouseover", function() { focus.style("display", null); })
-        .on("mouseout", function() { focus.style("display", "none"); })
+        .on("mouseover", function() { 
+          focus.style("display", null); 
+          toggleTooltip(null);
+        })
+        .on("mouseout", function() { 
+          focus.style("display", "none"),
+          toggleTooltip("none");
+        })
         .on("mousemove", mousemove);
+
+    function toggleTooltip(visibility) {
+      var tooltipVisibility = document.getElementById('tooltip');
+      tooltipVisibility.style.display = visibility;
+    }
 
     function mousemove() {
         var x0 = x.invert(d3.mouse(this)[0]);
@@ -219,9 +233,9 @@ d3.json("tidedata.json", function(error, data) {
         //ypos = console.log('y: ' + d3.mouse(this)[1]);
             
         var xvalue = x.invert(d3.mouse(this)[0]);
-        console.log(xvalue);
+        //console.log(xvalue);
 
-        var parseTime = d3.time.format("%_I:%M%p");
+        var parseTime = d3.time.format("%_I:%M<span class='tooltip-time'>%p</span>");
         var xvalueTime = parseTime(new Date(xvalue));
 
         i = bisectDate(data, x0, 1),
@@ -230,13 +244,13 @@ d3.json("tidedata.json", function(error, data) {
         d = x0 - d0.date > d1.date - x0 ? d1 : d0;
         
         var yvalue = d.close;
-        console.log(yvalue);
+        //console.log(yvalue);
 
         // tooltip creation
         div.transition()    
-            .duration(200)    
+            .duration(100)    
             .style("opacity", .9);    
-        div .html(xvalueTime + "<br/>"  + yvalue)  
+        div .html(xvalueTime + "<br/>"  + yvalue.toFixed(1) + "<span class='tooltip-feet'> ft</span>" )  
             .style("left", (d3.event.pageX) + "px")   
             .style("bottom", (130) + "px");
 
@@ -244,7 +258,7 @@ d3.json("tidedata.json", function(error, data) {
         .attr("transform",
           "translate(" + x(d.date) + "," +
           y(d.close) + ")");
-  }
+    }
 
 });
 
